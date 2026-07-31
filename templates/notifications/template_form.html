@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+
+    <h2 class="text-2xl font-bold mb-6">
+        {{ trigger.name }} - {{ channel|title }} Template
+    </h2>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if channel == 'email' %}
+        <div>
+            <label class="block font-medium mb-2">
+                Email Subject
+            </label>
+
+            <input type="text"
+                   name="subject"
+                   value="{{ template.subject }}"
+                   class="w-full border rounded-lg px-4 py-3">
+        </div>
+        {% endif %}
+
+        {% if channel == 'webpush' %}
+        <div>
+            <label class="block font-medium mb-2">
+                Notification Title
+            </label>
+
+            <input type="text"
+                   name="title"
+                   value="{{ template.title }}"
+                   class="w-full border rounded-lg px-4 py-3">
+        </div>
+        {% endif %}
+
+        <div>
+            <label class="block font-medium mb-2">
+                Message Body
+            </label>
+
+            <textarea name="body"
+                      rows="10"
+                      class="w-full border rounded-lg px-4 py-3">{{ template.body }}</textarea>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <input type="checkbox"
+                   name="enabled"
+                   {% if template.is_enabled %}checked{% endif %}
+                   class="w-5 h-5">
+
+            <label class="font-medium">
+                Enable this notification channel
+            </label>
+        </div>
+
+        <div class="flex gap-4">
+
+            <button type="submit"
+                    class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+                Save Template
+            </button>
+
+            <a href="{% url 'dashboard' %}"
+               class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400">
+                Back
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

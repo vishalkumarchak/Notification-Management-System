@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <nav class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-xl font-bold text-blue-600">
+                Notification System
+            </a>
+
+            <div class="flex items-center gap-4">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">
+                    Dashboard
+                </a>
+
+                <span class="text-gray-600">
+                    {{ user.username }}
+                </span>
+
+                <a href="{% url 'logout' %}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                    Logout
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="mb-4 bg-green-100 text-green-800 p-4 rounded-lg">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+        OneSignalDeferred.push(async function (OneSignal) {
+
+            await OneSignal.init({
+                appId: "YOUR_ONESIGNAL_APP_ID"
+            });
+
+            const permission = await OneSignal.Notifications.requestPermission();
+
+            if (permission) {
+
+                const subscriptionId = OneSignal.User.PushSubscription.id;
+
+                fetch("{% url 'webpush_subscribe' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({
+                        subscription_id: subscriptionId
+                    })
+                });
+
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>
